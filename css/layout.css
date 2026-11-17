@@ -1,0 +1,202 @@
+/* ============================================
+   YouDash — базовый каркас
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    background-color var(--transition-slow) ease,
+    color var(--transition-slow) ease;
+}
+
+/* Разрешаем выделение в полях ввода */
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Кнопки наследуют шрифт */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+button:focus { outline: none; }
+button:focus-visible {
+  outline: 2px solid var(--md-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Каркас приложения
+   ============================================ */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ============================================
+   App bar — верхняя панель
+   ============================================ */
+
+.appbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--md-surface);
+  height: var(--appbar-height);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.appbar-logo {
+  width: 40px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.appbar-logo .yt-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.appbar-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.appbar-title .yt-brand {
+  color: var(--md-on-surface);
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+}
+
+.appbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.appbar-actions button {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast);
+  color: var(--md-on-surface);
+}
+
+.appbar-actions button:active {
+  background: var(--md-surface-3);
+}
+
+/* Луна: цвет берётся из --md-on-surface, который меняется с темой */
+.theme-icon {
+  fill: var(--md-on-surface);
+  transition: fill var(--transition-slow) ease;
+}
+
+/* ============================================
+   Контент — скролл-область
+   ============================================ */
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: 0 var(--space-lg) var(--space-xl);
+  scroll-behavior: smooth;
+}
+
+.content::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+.content {
+  scrollbar-width: none;
+}
+
+/* ============================================
+   Утилиты
+   ============================================ */
+
+.hidden { display: none !important; }
+.invisible { visibility: hidden; }
+
+.fade-in {
+  animation: fadeIn var(--transition-slow) ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Иконки (SVG) */
+.icon { width: 20px; height: 20px; fill: currentColor; display: block; }
+.icon-lg { width: 24px; height: 24px; }
+.icon-xl { width: 28px; height: 28px; }
+
+/* ============================================
+   Адаптив
+   ============================================ */
+
+@media (max-width: 380px) {
+  :root {
+    --font-size-xl: 18px;
+    --control-size: 48px;
+    --control-play-size: 64px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .appbar { display: none; }
+  .content { padding-top: var(--space-sm); }
+}

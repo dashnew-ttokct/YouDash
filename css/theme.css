@@ -1,0 +1,202 @@
+/* ============================================
+   YouDash — Material 3 Design Tokens
+   Только переменные. Без правил для элементов.
+   ============================================ */
+
+:root {
+  /* --- Акцент (primary) --- */
+  --md-primary: #a8c7fa;
+  --md-on-primary: #00305f;
+  --md-primary-container: #00458f;
+  --md-on-primary-container: #d3e3fd;
+
+  /* --- Вторичный (secondary) --- */
+  --md-secondary: #d0bcff;
+  --md-on-secondary: #381e72;
+  --md-secondary-container: #4f378b;
+  --md-on-secondary-container: #eaddff;
+
+  /* --- Поверхности (surface) --- */
+  --md-surface: #131318;
+  --md-surface-1: #1c1b20;
+  --md-surface-2: #212025;
+  --md-surface-3: #28272c;
+  --md-surface-4: #34333a;
+  --md-surface-5: #3f3e46;
+
+  /* --- Текст на поверхностях --- */
+  --md-on-surface: #e6e1e9;
+  --md-on-surface-variant: #c4c6d0;
+
+  /* --- Обводки --- */
+  --md-outline: #8e9099;
+  --md-outline-variant: #44464f;
+
+  /* --- Ошибки --- */
+  --md-error: #ffb4ab;
+  --md-on-error: #690005;
+  --md-error-container: #93000a;
+
+  /* --- Радиусы --- */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* --- Тени (elevation) --- */
+  --elev-1: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --elev-2: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --elev-3: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --elev-4: 0 12px 36px rgba(0, 0, 0, 0.7);
+
+  /* --- Типографика --- */
+  --font-base: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-md: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+
+  /* --- Отступы --- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+
+  /* --- Анимации --- */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* --- Размеры --- */
+  --appbar-height: 56px;
+  --searchbar-height: 56px;
+  --control-size: 56px;
+  --control-play-size: 72px;
+}
+
+/* ============================================
+   Светлая тема — переключается классом .light на <body>
+   ============================================ */
+
+body.light {
+  --md-primary: #1a73e8;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #d3e3fd;
+  --md-on-primary-container: #041e49;
+
+  --md-secondary: #6750a4;
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: #eaddff;
+  --md-on-secondary-container: #21005d;
+
+  --md-surface: #fef7ff;
+  --md-surface-1: #f7f2fa;
+  --md-surface-2: #f3edf7;
+  --md-surface-3: #ece6f0;
+  --md-surface-4: #e6e0e9;
+  --md-surface-5: #e0dae3;
+
+  --md-on-surface: #1d1b20;
+  --md-on-surface-variant: #49454f;
+
+  --md-outline: #79747e;
+  --md-outline-variant: #cac4d0;
+
+  --md-error: #b3261e;
+  --md-on-error: #ffffff;
+  --md-error-container: #f9dedc;
+
+  --elev-1: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --elev-2: 0 2px 6px rgba(0, 0, 0, 0.15);
+  --elev-3: 0 4px 12px rgba(0, 0, 0, 0.18);
+  --elev-4: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   AMOLED — полностью чёрная тема.
+   Экономит батарею на OLED-экранах.
+   ============================================ */
+
+body.amoled {
+  --md-surface: #000000;
+  --md-surface-1: #050505;
+  --md-surface-2: #0a0a0a;
+  --md-surface-3: #101010;
+  --md-surface-4: #171717;
+  --md-surface-5: #1f1f1f;
+
+  --md-on-surface: #e6e1e9;
+  --md-on-surface-variant: #a8a8b0;
+
+  --md-outline-variant: #2a2a2a;
+
+  --elev-1: 0 1px 3px rgba(0, 0, 0, 0.8);
+  --elev-2: 0 4px 12px rgba(0, 0, 0, 0.85);
+  --elev-3: 0 8px 24px rgba(0, 0, 0, 0.9);
+  --elev-4: 0 12px 48px rgba(0, 0, 0, 0.95);
+}
+
+/* ============================================
+   Плавная смена темы
+   Все цвета и фоны меняются за 0.3 сек.
+   ============================================ */
+
+body,
+.appbar,
+.content,
+.search-bar,
+.search-bar input,
+.result-item,
+.result-item .r-title,
+.result-item .r-channel,
+.status,
+.empty-hint,
+.preset-chip,
+.history-chip,
+.video-card,
+.now-playing,
+.btn-side,
+.btn-play,
+.controls button,
+.progress-wrap,
+.progress-wrap span,
+.appbar-logo,
+.appbar-title,
+.appbar-title .yt-brand,
+.appbar-actions button,
+.theme-icon {
+  transition:
+    background-color var(--transition-slow) ease,
+    color var(--transition-slow) ease,
+    border-color var(--transition-slow) ease,
+    fill var(--transition-slow) ease;
+}
+
+/* Исключения — где transition мешает */
+#ytplayer,
+#ytplayer-full,
+.video-card iframe {
+  transition: none !important;
+}
+
+/* Прогресс-бар — только цвет заливки */
+input[type="range"] {
+  transition: background-color var(--transition-slow) ease;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  transition: background var(--transition-slow) ease;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  transition: background-color var(--transition-slow) ease,
+              border-color var(--transition-slow) ease,
+              box-shadow var(--transition-base) ease;
+}
