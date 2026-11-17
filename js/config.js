@@ -3,13 +3,13 @@
    Все константы проекта в одном месте.
    ============================================ */
 
+const INVIDIOUS_INSTANCES = [
+  'https://invidious.f5.si'
+];
+
 const PIPED_INSTANCES = [
   'https://pipedapi.ducks.party',
   'https://api.piped.private.coffee'
-];
-
-const INVIDIOUS_INSTANCES = [
-  'https://invidious.f5.si'
 ];
 
 // --- Таймауты ---
@@ -37,7 +37,6 @@ const SEARCH_PRESETS = [
   { label: 'Игры',    query: 'gameplay' },
   { label: 'Подкасты', query: 'podcast' },
   { label: 'Новости', query: 'news' },
-  { label: 'Lofi',    query: 'lofi hip hop' }
 ];
 
 // --- Скорости воспроизведения ---
