@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#131318">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YouDash">
+<title>YouDash</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/search.css">
+<link rel="stylesheet" href="css/player.css">
+<link rel="stylesheet" href="css/history.css">
+<link rel="stylesheet" href="css/related.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="appbar">
+    <div class="appbar-logo">
+      <svg viewBox="0 0 28 20" class="yt-icon">
+        <rect x="0" y="0" width="28" height="20" rx="4" fill="#ff0000"/>
+        <polygon points="11,6 11,14 18,10" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="appbar-title">
+      <span class="yt-brand">YD</span>
+    </div>
+    <div class="appbar-actions">
+      <button id="themeBtn" title="Сменить тему" aria-label="Сменить тему">
+        <svg class="icon-lg theme-icon" viewBox="0 0 24 24">
+          <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="content" id="content">
+
+    <!-- ============ Видео + overlay ============ -->
+    <section class="video-section" id="videoSection">
+      <div class="video-card" id="videoCard">
+        <video id="html5player" playsinline preload="auto"></video>
+
+        <!-- Наш overlay поверх видео -->
+        <div class="player-overlay visible" id="playerOverlay">
+
+          <!-- Центральная кнопка play/pause -->
+          <button class="center-btn" id="centerBtn" aria-label="Играть">
+            <svg id="centerIcon" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </button>
+
+          <!-- Нижняя панель -->
+          <div class="overlay-bottom">
+
+            <!-- Прогресс -->
+            <div class="overlay-progress-wrap">
+              <span id="ovCurrent">0:00</span>
+              <input type="range" class="overlay-progress" id="ovProgress" min="0" max="100" value="0" step="0.1" aria-label="Прогресс">
+              <span id="ovDuration">0:00</span>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="overlay-buttons">
+              <button class="ov-btn" id="ovPrev" aria-label="Назад">
+                <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+              </button>
+              <button class="ov-btn" id="ovPlayPause" aria-label="Играть">
+                <svg id="ovPlayIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+              <button class="ov-btn" id="ovNext" aria-label="Вперёд">
+                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+              </button>
+              <button class="ov-btn ov-speed" id="ovSpeed" aria-label="Скорость">1x</button>
+              <button class="ov-btn ov-spacer" disabled></button>
+              <button class="ov-btn" id="ovFs" aria-label="На весь экран">
+                <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="now-playing" id="nowPlaying"></div>
+    </section>
+
+    <!-- ============ Поиск ============ -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Поиск или ссылка" autocomplete="off" inputmode="search" aria-label="Поиск">
+      <button id="searchBtn" title="Найти" aria-label="Найти">
+        <svg class="icon-lg" viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="presets" id="presets"></div>
+
+    <div class="status" id="status"></div>
+
+    <div class="history-block hidden" id="historyBlock"></div>
+
+    <section class="history-section" id="historySection"></section>
+
+    <div class="empty-hint" id="emptyHint">
+      <div class="big-icon">YD</div>
+      <div>Найди видео или вставь ссылку</div>
+    </div>
+
+    <div class="results hidden" id="results"></div>
+
+    <section class="related-section" id="relatedSection"></section>
+
+  </main>
+</div>
+
+<!-- ============ FULLSCREEN ============ -->
+<div class="fullscreen-mode" id="fullscreenMode">
+  <div class="fs-header" id="fsHeader">
+    <button id="fsBack" title="Назад" aria-label="Назад">
+      <svg class="icon-lg" viewBox="0 0 24 24">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+    </button>
+    <div class="fs-title" id="fsTitle"></div>
+    <button id="fsClose" title="Закрыть" aria-label="Закрыть">
+      <svg class="icon-lg" viewBox="0 0 24 24">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
+    </button>
+  </div>
+  <div class="fs-player" id="fsPlayerWrap">
+    <video id="html5playerFull" playsinline preload="auto"></video>
+  </div>
+</div>
+
+<!-- ============ jmuxer CDN ============ -->
+<script src="https://cdn.jsdelivr.net/npm/jmuxer@2.0.4/dist/jmuxer.min.js"></script>
+
+<!-- ============ Скрипты ============ -->
+<script src="js/config.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/api.js"></script>
+<script src="js/translate.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/history.js"></script>
+<script src="js/related.js"></script>
+<script src="js/stream-player.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
