@@ -8,6 +8,7 @@
 
   var controlsTimer = null;
   var controlsVisible = true;
+  var currentMode = localStorage.getItem('youdash_mode') || 'light'; // 'light' | 'hd'
 
   /* ---------- Управление overlay ---------- */
 
@@ -51,6 +52,15 @@
     if (ovPlayIcon) ovPlayIcon.innerHTML = '<path d="' + path + '"/>';
   }
 
+  /* ---------- Обновление UI режима ---------- */
+
+  function updateModeUI() {
+    var modeBtn = document.getElementById('modeBtn');
+    if (!modeBtn) return;
+    modeBtn.classList.toggle('active', currentMode === 'hd');
+    modeBtn.title = currentMode === 'hd' ? 'HD (VPN)' : 'Лёгкий (360p)';
+  }
+
   /* ---------- Инициализация ---------- */
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -79,25 +89,61 @@
       Related.init();
     }
 
+    /* --- StreamPlayer (Лёгкий режим) --- */
     if (typeof StreamPlayer !== 'undefined') {
       StreamPlayer.init();
-
       StreamPlayer.onStateChange = function(state) {
-        setPlayIcons(state === 'playing');
-        if (state === 'playing') resetControlsTimer();
+        if (currentMode === 'light') setPlayIcons(state === 'playing');
+        if (state === 'playing' && currentMode === 'light') resetControlsTimer();
       };
-
       StreamPlayer.onProgress = function(current, duration) {
-        updateOverlayProgress(current, duration);
+        if (currentMode === 'light') updateOverlayProgress(current, duration);
       };
-
       StreamPlayer.onEnded = function() {
-        StreamPlayer.next();
+        if (currentMode === 'light') StreamPlayer.next();
       };
-
       StreamPlayer.onError = function(message) {
-        UI.setStatus('Ошибка: ' + message, 'error');
+        if (currentMode === 'light') UI.setStatus('Ошибка: ' + message, 'error');
       };
+    }
+
+    /* --- Player (HD режим) --- */
+    if (typeof Player !== 'undefined') {
+      Player.init();
+      Player.createMainPlayer();
+      Player.onStateChange = function(state) {
+        if (currentMode === 'hd') setPlayIcons(state === 1);
+      };
+      Player.onProgress = function(current, duration) {
+        if (currentMode === 'hd') updateOverlayProgress(current, duration);
+      };
+      Player.onEnded = function() { 
+        if (currentMode === 'hd' && typeof Player !== 'undefined') Player.next(); 
+      };
+      Player.onError = function(message) {
+        if (currentMode === 'hd') UI.setStatus('Ошибка: ' + message, 'error');
+      };
+    }
+
+    /* --- Кнопка переключения режима --- */
+    var modeBtn = document.getElementById('modeBtn');
+    if (modeBtn) {
+      updateModeUI();
+      modeBtn.addEventListener('click', function() {
+        currentMode = currentMode === 'light' ? 'hd' : 'light';
+        localStorage.setItem('youdash_mode', currentMode);
+        updateModeUI();
+        UI.setStatus(
+          currentMode === 'hd' ? 'Режим HD (нужен VPN)' : 'Режим 360p (без VPN)',
+          'success'
+        );
+        
+        // Если видео играет — перезапускаем в новом режиме
+        var v = (typeof StreamPlayer !== 'undefined' && StreamPlayer.currentVideo) ? StreamPlayer.currentVideo : (typeof Player !== 'undefined' ? Player.currentVideo : null);
+        if (v) {
+          playItem(v, 0, [v]);
+        }
+      });
     }
 
     /* ---------- Overlay: тап по видео ---------- */
@@ -105,7 +151,6 @@
     var overlay = document.getElementById('playerOverlay');
     if (overlay) {
       overlay.addEventListener('click', function(e) {
-        // Если клик по кнопке — не переключаем overlay
         if (e.target.closest('button') || e.target.closest('input')) return;
         toggleControls();
       });
@@ -116,7 +161,11 @@
     var centerBtn = document.getElementById('centerBtn');
     if (centerBtn) {
       centerBtn.addEventListener('click', function() {
-        if (typeof StreamPlayer !== 'undefined') StreamPlayer.togglePlay();
+        if (currentMode === 'hd' && typeof Player !== 'undefined') {
+          Player.togglePlay();
+        } else if (typeof StreamPlayer !== 'undefined') {
+          StreamPlayer.togglePlay();
+        }
         showControls();
       });
     }
@@ -126,7 +175,11 @@
     var ovPlayPause = document.getElementById('ovPlayPause');
     if (ovPlayPause) {
       ovPlayPause.addEventListener('click', function() {
-        if (typeof StreamPlayer !== 'undefined') StreamPlayer.togglePlay();
+        if (currentMode === 'hd' && typeof Player !== 'undefined') {
+          Player.togglePlay();
+        } else if (typeof StreamPlayer !== 'undefined') {
+          StreamPlayer.togglePlay();
+        }
         showControls();
       });
     }
@@ -134,7 +187,11 @@
     var ovPrev = document.getElementById('ovPrev');
     if (ovPrev) {
       ovPrev.addEventListener('click', function() {
-        if (typeof StreamPlayer !== 'undefined') StreamPlayer.prev();
+        if (currentMode === 'hd' && typeof Player !== 'undefined') {
+          Player.prev();
+        } else if (typeof StreamPlayer !== 'undefined') {
+          StreamPlayer.prev();
+        }
         showControls();
       });
     }
@@ -142,7 +199,11 @@
     var ovNext = document.getElementById('ovNext');
     if (ovNext) {
       ovNext.addEventListener('click', function() {
-        if (typeof StreamPlayer !== 'undefined') StreamPlayer.next();
+        if (currentMode === 'hd' && typeof Player !== 'undefined') {
+          Player.next();
+        } else if (typeof StreamPlayer !== 'undefined') {
+          StreamPlayer.next();
+        }
         showControls();
       });
     }
@@ -166,7 +227,12 @@
         var rate = speeds[speedIdx];
         ovSpeed.textContent = rate + 'x';
         ovSpeed.classList.toggle('active', rate !== 1);
-        if (typeof StreamPlayer !== 'undefined') StreamPlayer.setPlaybackRate(rate);
+        
+        if (currentMode === 'hd' && typeof Player !== 'undefined' && typeof Player.setPlaybackRate === 'function') {
+          Player.setPlaybackRate(rate);
+        } else if (typeof StreamPlayer !== 'undefined') {
+          StreamPlayer.setPlaybackRate(rate);
+        }
         showControls();
       });
     }
@@ -179,12 +245,22 @@
 
       var onStart = function() {
         isDragging = true;
-        if (typeof StreamPlayer !== 'undefined') StreamPlayer.setDragging(true);
+        if (currentMode === 'hd' && typeof Player !== 'undefined') {
+          Player.setDragging(true);
+        } else if (typeof StreamPlayer !== 'undefined') {
+          StreamPlayer.setDragging(true);
+        }
         showControls();
       };
 
       var onInput = function() {
-        var duration = (typeof StreamPlayer !== 'undefined' && StreamPlayer.duration) ? StreamPlayer.duration : 0;
+        var duration = 0;
+        if (currentMode === 'hd' && typeof Player !== 'undefined') {
+          duration = Player.duration || 0;
+        } else if (typeof StreamPlayer !== 'undefined') {
+          duration = StreamPlayer.duration || 0;
+        }
+        
         var current = (parseFloat(ovProgress.value) / 100) * duration;
         var ovCurrent = document.getElementById('ovCurrent');
         if (ovCurrent) ovCurrent.textContent = formatTime(current);
@@ -194,7 +270,11 @@
       var onEnd = function() {
         if (!isDragging) return;
         isDragging = false;
-        if (typeof StreamPlayer !== 'undefined') {
+        
+        if (currentMode === 'hd' && typeof Player !== 'undefined') {
+          Player.setDragging(false);
+          Player.seekToPercent(parseFloat(ovProgress.value));
+        } else if (typeof StreamPlayer !== 'undefined') {
           StreamPlayer.setDragging(false);
           StreamPlayer.seekToPercent(parseFloat(ovProgress.value));
         }
@@ -306,6 +386,11 @@
   /* ---------- Fullscreen ---------- */
 
   function enterFullscreen() {
+    if (currentMode === 'hd' && typeof Player !== 'undefined') {
+      Player.enterFullscreen();
+      return;
+    }
+
     var fsMode = document.getElementById('fullscreenMode');
     var fsVideo = document.getElementById('html5playerFull');
     var mainVideo = document.getElementById('html5player');
@@ -353,6 +438,11 @@
   }
 
   function exitFullscreen() {
+    if (currentMode === 'hd' && typeof Player !== 'undefined') {
+      Player.exitFullscreen();
+      return;
+    }
+
     var fsMode = document.getElementById('fullscreenMode');
     var fsVideo = document.getElementById('html5playerFull');
     var mainVideo = document.getElementById('html5player');
@@ -402,7 +492,7 @@
     UI.setStatus('Поиск...');
 
     var searchStart = performance.now();
-    Storage.addToSearchHistory(query);
+    if (typeof Storage !== 'undefined') Storage.addToSearchHistory(query);
 
     try {
       var result = await API.search(query, function(message) {
@@ -448,29 +538,52 @@
   /* ---------- Запуск видео ---------- */
 
   async function playItem(item, index, allItems) {
-    if (typeof StreamPlayer === 'undefined') return;
-
-    StreamPlayer.setQueue(allItems, index);
+    var videoId = item.videoId;
+    var title = item.titleRu || item.title || '';
 
     UI.showPlayer();
-    UI.setNowPlaying(item.titleRu || item.title || '');
-    UI.setStatus('Загрузка потока...', 'success');
+    UI.setNowPlaying(title);
+    UI.setStatus('Загрузка...', 'success');
 
-    var started = await StreamPlayer.playVideo(
-      item.videoId,
-      item.titleRu || item.title
-    );
+    var videoEl = document.getElementById('html5player');
+    var iframeEl = document.getElementById('iframePlayer');
+    var overlay = document.getElementById('playerOverlay');
 
-    if (!started) {
-      UI.setStatus('Не удалось загрузить поток. Попробуй другое видео.', 'error');
-      return;
+    if (currentMode === 'hd' && typeof Player !== 'undefined') {
+      // HD: IFrame YouTube
+      if (videoEl) videoEl.style.display = 'none';
+      if (iframeEl) iframeEl.style.display = 'block';
+      if (overlay) overlay.style.display = 'none';
+
+      var container = document.getElementById('plyrContainer');
+      if (!container && iframeEl) {
+        iframeEl.innerHTML = '<div id="plyrContainer"></div>';
+        Player.createMainPlayer();
+      }
+      Player.setQueue(allItems, index);
+      Player.playVideo(videoId, title);
+    } else {
+      // Лёгкий: Piped 360p
+      if (iframeEl) iframeEl.style.display = 'none';
+      if (videoEl) videoEl.style.display = 'block';
+      if (overlay) overlay.style.display = '';
+
+      if (typeof StreamPlayer !== 'undefined') {
+        StreamPlayer.setQueue(allItems, index);
+        var started = await StreamPlayer.playVideo(videoId, title);
+        if (!started) {
+          UI.setStatus('Не удалось загрузить поток.', 'error');
+          return;
+        }
+      }
     }
 
-    Storage.addToHistory(item);
-    Storage.setLastVideo(item);
-
+    if (typeof Storage !== 'undefined') {
+      Storage.addToHistory(item);
+      Storage.setLastVideo(item);
+    }
     if (typeof Related !== 'undefined') {
-      Related.load(item.videoId);
+      Related.load(videoId);
     }
 
     showControls();
